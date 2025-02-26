@@ -4,7 +4,12 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:  # Allows manual triggering of the workflow
+  workflow_dispatch:
+    inputs:
+      destroy:
+        description: "Destroy Terraform resources"
+        required: false
+        default: "false"
 
 jobs:
   deploy:
@@ -31,38 +36,16 @@ jobs:
         working-directory: ./env
 
       - name: Terraform Plan
+        if: github.event.inputs.destroy != 'true'
         run: terraform plan -out=planfile
         working-directory: ./env
 
       - name: Terraform Apply
+        if: github.event.inputs.destroy != 'true'
         run: terraform apply -auto-approve planfile
         working-directory: ./env
 
-  destroy:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch'  # Only run on manual trigger
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v3
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-central-1
-
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: 1.4.5
-
-      - name: Terraform Init
-        run: terraform init
-        working-directory: ./env
-
       - name: Terraform Destroy
+        if: github.event.inputs.destroy == 'true'
         run: terraform destroy -auto-approve
         working-directory: ./env
-
-        
