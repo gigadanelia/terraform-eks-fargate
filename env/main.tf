@@ -12,13 +12,40 @@ provider "aws" {
   region = var.region
 }
 
-module "vpc" {
-  source      = "../modules/vpc"
-  name        = var.name
-  cidr_block  = var.vpc_cidr
-  azs         = var.azs
+# Comment out the VPC module
+# module "vpc" {
+#   source      = "../modules/vpc"
+#   name        = var.name
+#   cidr_block  = var.vpc_cidr
+#   azs         = var.azs
+# }
+
+# Create a security group in the existing VPC
+resource "aws_security_group" "example_sg" {
+  name        = "example-security-group"
+  description = "Example security group"
+  vpc_id      = "vpc-0ea0df6446e4d0488"  # Use the existing VPC ID
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # Allow SSH access from anywhere
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"  # Allow all outbound traffic
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "example-security-group"
+  }
 }
 
+# Comment out the EKS module
 # module "eks" {
 #   source             = "../modules/eks"
 #   name               = var.name
@@ -29,3 +56,8 @@ module "vpc" {
 # output "eks_endpoint" {
 #   value = module.eks.cluster_endpoint
 # }
+
+# Output the security group ID
+output "security_group_id" {
+  value = aws_security_group.example_sg.id
+}
