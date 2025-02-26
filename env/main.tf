@@ -19,13 +19,13 @@ module "vpc" {
   azs         = var.azs
 }
 
-module "eks" {
-  source             = "../modules/eks"
-  name               = var.name
-  private_subnet_ids = module.vpc.private_subnet_ids
-  k8s_version        = var.k8s_version
-}
+# module "eks" {
+#   source             = "../modules/eks"
+#   name               = var.name
+#   private_subnet_ids = module.vpc.private_subnet_ids
+#   k8s_version        = var.k8s_version
+# }
 
-output "eks_endpoint" {
-  value = module.eks.cluster_endpoint
-}
+# output "eks_endpoint" {
+#   value = module.eks.cluster_endpoint
+# }
