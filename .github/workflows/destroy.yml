@@ -1,12 +1,10 @@
-name: Deploy Terraform to AWS
+name: Destroy Terraform Infrastructure
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
-  deploy:
+  destroy:
     runs-on: ubuntu-latest
 
     steps:
@@ -29,10 +27,6 @@ jobs:
         run: terraform init
         working-directory: ./env
 
-      - name: Terraform Plan
-        run: terraform plan -out=planfile
-        working-directory: ./env
-
-      - name: Terraform Apply
-        run: terraform apply -auto-approve planfile
+      - name: Terraform Destroy
+        run: terraform destroy -auto-approve
         working-directory: ./env
