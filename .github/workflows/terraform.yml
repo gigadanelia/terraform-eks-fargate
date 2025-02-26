@@ -31,6 +31,13 @@ jobs:
         with:
           terraform_version: 1.4.5
 
+      - name: Cache Terraform state
+        uses: actions/cache@v3
+        with:
+          path: ./env/terraform.tfstate
+          key: terraform-${{ github.run_id }}
+          restore-keys: terraform-
+
       - name: Terraform Init
         run: terraform init
         working-directory: ./env
@@ -49,3 +56,11 @@ jobs:
         if: github.event.inputs.destroy == 'true'
         run: terraform destroy -auto-approve
         working-directory: ./env
+
+      - name: Save Terraform state
+        if: github.event.inputs.destroy != 'true'
+        run: cp ./env/terraform.tfstate /tmp/terraform.tfstate
+
+      - name: Restore Terraform state
+        if: github.event.inputs.destroy == 'true'
+        run: cp /tmp/terraform.tfstate ./env/terraform.tfstate || echo "No previous state found"
