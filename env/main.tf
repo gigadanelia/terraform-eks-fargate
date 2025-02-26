@@ -26,6 +26,6 @@ module "eks" {
   k8s_version        = var.k8s_version
 }
 
-output "eks_cluster_endpoint" {
+output "eks_endpoint" {
   value = module.eks.cluster_endpoint
 }
